@@ -4,8 +4,7 @@ from pydantic_settings import BaseSettings
 
 
 class Constants(str, Enum):
-    # TAOMININGPOOL_API_URL: str = "https://api.taopoolmining.com"
-    TAOMININGPOOL_API_URL: str = "http://localhost:5000"
+    TAOMININGPOOL_API_URL: str = "https://api.taopoolmining.com"
 
 
 class AuthRoute:
