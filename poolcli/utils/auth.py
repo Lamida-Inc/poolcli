@@ -1,19 +1,17 @@
+from dataclasses import dataclass
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
 import requests
 
-
-def get_config_path() -> Path:
-    """Get the poolcli config directory path."""
-    return Path.home() / ".poolcli"
+from poolcli.core.config import settings
 
 
 def get_config_file() -> Path:
     """Get the config file path."""
-    config_path = get_config_path()
+    config_path = settings.CONFIG_PATH
     config_path.mkdir(exist_ok=True)
     return config_path / "config.json"
 
@@ -34,15 +32,15 @@ def store_token(wallet_name: str, token: str, backend_url: str, address: str) ->
         "token": token,
         "backend_url": backend_url,
         "address": address,
-        "created_at": datetime.utcnow().isoformat(),
-        "last_used": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
+        "last_used": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
     }
 
     with open(config_file, "w") as f:
         json.dump(config, f, indent=2)
 
 
-def get_stored_session(wallet_name: str) -> Optional[dict[str, Any]]:
+def get_stored_session(wallet_name: str) -> Optional[dict[str, dict[str, str]]]:
     """Retrieve stored session for a wallet."""
     config_file = get_config_file()
     if not config_file.exists():
@@ -54,8 +52,10 @@ def get_stored_session(wallet_name: str) -> Optional[dict[str, Any]]:
         session: dict = config.get(wallet_name, {})
 
         # Check if token is still valid (rough check - JWT expiry should be verified by backend)
-        created_at = datetime.fromisoformat(session.get("created_at", datetime.utcnow().isoformat()))
-        if datetime.utcnow() - created_at > timedelta(hours=24):  # Consider re-auth after 24h
+        created_at = datetime.fromisoformat(session.get("created_at", None))
+        if not created_at:
+            return None
+        if datetime.now(timezone.utc) - created_at > timedelta(minutes=50):  # Consider re-auth after 24h  # noqa: UP017
             return None
 
         return session
@@ -78,9 +78,12 @@ def clear_session(wallet_name: str) -> None:
             pass
 
 
-def get_auth_headers(token: str) -> dict[str, str]:
+def get_auth_headers(token: Optional[str]) -> dict[str, str]:
     """Get headers with Bearer token for API calls."""
-    return {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+    if token:
+        return {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+    else:
+        return {"Content-Type": "application/json"}
 
 
 def is_authenticated(backend_url: str, token: str) -> bool:
