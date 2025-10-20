@@ -1,5 +1,7 @@
 """Key management CLI commands."""
 
+import time
+import traceback
 from typing import Optional
 
 import click
@@ -64,7 +66,6 @@ def create(
         invoice_id = result["invoiceId"]
         amount = result["amountDue"]
         dest = result["receiverAddress"]
-
         if click.confirm(f"🚀 Proceed with {amount} TAO payment to get developer key?"):
             success = False
             import bittensor as bt
@@ -73,11 +74,14 @@ def create(
                 # subtensor = bt.subtensor(network="test")  # uncomment this for test
                 subtensor = bt.subtensor()
                 success = subtensor.transfer(wallet=wallet, dest=dest, amount=bt.Balance.from_tao(amount=amount))
+                time.sleep(5)  # give time for listener to synchronize transactions
             if success:
-                Console.print(f"[bold green] Successfully transferred {amount} TAO to {dest}")
-            if click.confirm("Proceed with creating pool?"):
-                pool_manager = PoolManager(backend_url=backend_url)
-                pool_manager.start(token=token, wallet=wallet)
+                Console.print(f"[bold green] Successfully transferred {amount} TAO to {dest}\n")
+                if click.confirm("Proceed with creating pool?"):
+                    pool_manager = PoolManager(backend_url=backend_url)
+                    pool_manager.start(token=token, wallet=wallet)
+            else:
+                Console.info(f"Invoice {invoice_id} created. ")
         else:
             Console.info(f"Invoice {invoice_id} created. ")
 
@@ -104,13 +108,10 @@ def list(wallet_name: str, backend_url: str, page: int, limit: int, status: Opti
     try:
         # Get valid token
         auth_service = AuthService(backend_url)
-        token = auth_service.get_valid_token(wallet_name)
-
+        token, _ = auth_service.authenticate_with_wallet(wallet_name=wallet_name, requires_unlock=False)
         if not token:
-            token, _ = auth_service.authenticate_with_wallet(wallet_name, "default", False)
-            if not token:
-                Console.error("Authentication failed.")
-                return
+            Console.error("Authentication failed.")
+            return
 
         # Fetch keys
         key_manager = KeyManager(backend_url)
@@ -130,21 +131,21 @@ def invoice() -> None:
 
 
 @invoice.command()
-@click.argument("invoice_id")
+@click.option("--invoice-id", required=True, prompt="Invoice Id", help="Invoice Id to fetch")
 @click.option("--wallet-name", required=True, prompt="Wallet name", help="Wallet name")
 @click.option("--backend-url", default=settings.API_URL)
 def get(invoice_id: str, wallet_name: str, backend_url: str) -> None:
     """Get invoice status."""
     try:
         auth_service = AuthService(backend_url)
-        token = auth_service.get_valid_token(wallet_name)
+        token, _ = auth_service.authenticate_with_wallet(wallet_name=wallet_name, requires_unlock=False)
 
         if not token:
             Console.error("Authentication required. Run: poolcli auth login")
             return
 
         key_manager = KeyManager(backend_url)
-        is_paid, developer_key = key_manager.display_invoice_status(token, invoice_id)
+        is_paid, _ = key_manager.display_invoice_status(token, invoice_id)
 
         if is_paid:
             Console.success("Invoice has been paid!")
@@ -152,6 +153,7 @@ def get(invoice_id: str, wallet_name: str, backend_url: str) -> None:
             Console.warning("Invoice is still pending payment.")
 
     except (AuthenticationError, KeyManagementError, APIError) as e:
+        print(traceback.format_exc())
         Console.error(str(e))
     except Exception as e:
         Console.error(f"Unexpected error: {e}")

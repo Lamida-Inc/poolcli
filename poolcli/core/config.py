@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from poolcli.core.constants import Constants
@@ -11,6 +13,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
     API_URL: str = Constants.TAOMININGPOOL_API_URL
+    CONFIG_PATH: Path = Path.home() / ".poolcli"
 
 
 settings = Settings()

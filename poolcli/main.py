@@ -1,5 +1,4 @@
 import importlib.metadata
-import sys
 
 import click
 
@@ -7,6 +6,7 @@ import click
 from poolcli.cli.auth import auth
 from poolcli.cli.key import key
 from poolcli.cli.pool import pool
+from poolcli.cli.support import support
 from poolcli.cli.wallet import wallet
 from poolcli.utils.help import RecursiveHelpGroup
 
@@ -35,14 +35,20 @@ def cli(ctx, show_version: bool, commands: bool) -> None:
         click.echo(ctx.get_help())
         ctx.exit(0)
 
+
 # Register the command groups with the main CLI
 cli.add_command(auth)
 cli.add_command(wallet)
 cli.add_command(key)
 cli.add_command(pool)
+cli.add_command(support)
 
 if __name__ == "__main__":
     try:
         cli(standalone_mode=False)
-    except SystemExit:
-        sys.exit(0)
+    except click.Abort:
+        click.echo("\nOperation aborted by user.", err=True)
+    except click.ClickException as e:
+        e.show()
+    except Exception as e:
+        click.echo(click.style(f"\nUnexpected error: {e}", fg="red", bold=True))
