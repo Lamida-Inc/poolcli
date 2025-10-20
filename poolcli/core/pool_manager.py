@@ -45,6 +45,7 @@ class PoolManager:
         if not unused_keys:
             Console.warning("No unused developer keys available.")
             Console.info(f"Create one using: poolcli key create --wallet-name {wallet.name}")
+            Console.info("Didn't see your key? Please try again after few minutes or contact admin")
             return
 
         Console.header("Available Unused Developer Keys")
