@@ -62,7 +62,7 @@ class Console:
     @staticmethod
     def payment_status(amount, dest):
         """Print payment status"""
-        return console.status(f"[bold green]Transferring {amount} TAO to {dest}", spinner="earth")
+        return console.status(f"[bold green]Transferring {amount} TAO to {dest}\n", spinner="earth")
 
     @staticmethod
     def ongoing_status(msg):

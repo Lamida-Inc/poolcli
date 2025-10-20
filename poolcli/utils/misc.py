@@ -1,10 +1,7 @@
-from dataclasses import dataclass
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Optional
-
-import requests
+from typing import Optional
 
 from poolcli.core.config import settings
 
@@ -50,8 +47,6 @@ def get_stored_session(wallet_name: str) -> Optional[dict[str, dict[str, str]]]:
         with open(config_file) as f:
             config = json.load(f)
         session: dict = config.get(wallet_name, {})
-
-        # Check if token is still valid (rough check - JWT expiry should be verified by backend)
         created_at = datetime.fromisoformat(session.get("created_at", None))
         if not created_at:
             return None
@@ -84,13 +79,3 @@ def get_auth_headers(token: Optional[str]) -> dict[str, str]:
         return {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
     else:
         return {"Content-Type": "application/json"}
-
-
-def is_authenticated(backend_url: str, token: str) -> bool:
-    """Verify if token is still valid by making a test request."""
-    try:
-        headers = get_auth_headers(token)
-        response = requests.get(f"{backend_url}/pool/get/metagraph/sync-time", headers=headers, timeout=5)
-        return response.status_code == 200
-    except Exception as _e:
-        return False

@@ -1,6 +1,5 @@
 """Pool management CLI commands."""
 
-
 import click
 
 from poolcli.core.auth import AuthService
@@ -62,7 +61,7 @@ def list(wallet_name: str, backend_url: str, page: int, limit: int, force: bool)
 
     try:
         auth_service = AuthService(backend_url)
-        token, wallet = auth_service.authenticate_with_wallet(wallet_name, "default", force)
+        token, wallet = auth_service.authenticate_with_wallet(wallet_name=wallet_name, requires_unlock=False)
 
         if not token:
             Console.error("Authentication required. Run: poolcli auth login")
@@ -83,7 +82,7 @@ def list(wallet_name: str, backend_url: str, page: int, limit: int, force: bool)
 
 
 @pool.command()
-@click.argument("pool_id")
+@click.option("--pool-id", required=True, prompt="Pool Id")
 @click.option("--wallet-name", required=True, prompt="Wallet name")
 @click.option("--backend-url", default=settings.API_URL)
 def show(pool_id: str, wallet_name: str, backend_url: str) -> None:
@@ -92,7 +91,7 @@ def show(pool_id: str, wallet_name: str, backend_url: str) -> None:
 
     try:
         auth_service = AuthService(backend_url)
-        token = auth_service.get_valid_token(wallet_name)
+        token, _ = auth_service.authenticate_with_wallet(wallet_name)
 
         if not token:
             Console.error("Authentication required. Run: poolcli auth login")

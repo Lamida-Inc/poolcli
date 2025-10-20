@@ -74,11 +74,10 @@ def status(wallet_name: str, backend_url: str) -> None:
     """Check authentication status for a wallet."""
     try:
         auth_service = AuthService(backend_url)
-        token = auth_service.get_valid_token(wallet_name)
+        status = auth_service.check_auth(wallet_name)
 
-        if token:
+        if status:
             Console.success(f"✅ Authenticated as {wallet_name}")
-            Console.info(f"Token: {token[:20]}...{token[-10:]}")
         else:
             Console.warning(f"❌ Not authenticated as {wallet_name}")
             Console.info("Run 'poolcli auth login' to authenticate.")
