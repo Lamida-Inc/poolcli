@@ -1,5 +1,6 @@
 """Key management CLI commands."""
 
+import time
 from typing import Optional
 
 import click
@@ -73,6 +74,7 @@ def create(
                 # subtensor = bt.subtensor(network="test")  # uncomment this for test
                 subtensor = bt.subtensor()
                 success = subtensor.transfer(wallet=wallet, dest=dest, amount=bt.Balance.from_tao(amount=amount))
+                time.sleep(5)  # give time for backend to synchronize transactions
             if success:
                 Console.print(f"[bold green] Successfully transferred {amount} TAO to {dest}")
             if click.confirm("Proceed with creating pool?"):
