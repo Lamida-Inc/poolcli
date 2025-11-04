@@ -72,6 +72,12 @@ poolcli pool create --wallet-name my_wallet
 poolcli pool list --wallet-name my_wallet
 ```
 
+### 6. Initiate Refund
+
+```bash
+poolcli pool redund --wallet-name my_wallet
+```
+
 ## Command Reference
 
 ### Authentication (`auth`)
@@ -226,6 +232,34 @@ poolcli pool show <pool-id> --wallet-name my_wallet
 
 - `--wallet-name` (required): Your Bittensor wallet name
 - `--backend-url`: Backend API URL
+
+
+### Refund Management (`refund`)
+
+Initiate Refund Process
+
+#### `poolcli refund start`
+
+Start the refund process by selecting the expired developer key.
+
+```bash
+poolcli refund start
+```
+#### `poolcli refund list`
+
+Display all available refund invoices for a specific wallet.
+
+```bash
+poolcli refund list
+```
+
+#### `poolcli refund get`
+
+Display all invoice details for a specific Refund ID.
+
+```bash
+poolcli refund get
+```
 
 ### Wallet Management (`wallet`)
 

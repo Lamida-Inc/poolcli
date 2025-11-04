@@ -4,7 +4,8 @@ from pydantic_settings import BaseSettings
 
 
 class Constants(str, Enum):
-    TAOMININGPOOL_API_URL: str = "https://api.taopoolmining.com"
+    # TAOMININGPOOL_API_URL: str = "https://api.taopoolmining.com"
+    TAOMININGPOOL_API_URL: str = "http://localhost:5000"
 
 
 class AuthRoute:
@@ -25,10 +26,17 @@ class PoolRoute:
     GET_POOL: str = "/api/v1/pool"
 
 
+class RefundRoute:
+    CREATE_REFUND_INVOICE: str = "/api/v1/refund/create/developer-key"
+    LIST_REFUND_INVOICES: str = "/api/v1/refund/get/list"
+    GET_REFUND_DETAILS: str = "/api/v1/refund"
+
+
 class ApiRoute(BaseSettings):
     auth: AuthRoute = AuthRoute()
     key: DeveloperKeyRoute = DeveloperKeyRoute()
     pool: PoolRoute = PoolRoute()
+    refund: RefundRoute = RefundRoute()
 
 
 apiRoutes = ApiRoute()

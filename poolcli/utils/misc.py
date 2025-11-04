@@ -75,7 +75,7 @@ def clear_session(wallet_name: str) -> None:
 
 def get_auth_headers(token: Optional[str]) -> dict[str, str]:
     """Get headers with Bearer token for API calls."""
+    headers = {"Content-Type": "application/json", "x-auth-mode":"headers"}
     if token:
-        return {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-    else:
-        return {"Content-Type": "application/json"}
+        headers["Authorization"] = f"Bearer {token}"
+    return headers

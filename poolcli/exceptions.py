@@ -25,6 +25,9 @@ class PoolError(PoolcliError):
     """Raised when pool operations fail."""
     pass
 
+class RefundError(PoolcliError):
+    """Raised when refund operations fail."""
+    pass
 
 class APIError(PoolcliError):
     """Raised when API requests fail."""
