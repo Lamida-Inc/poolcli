@@ -75,7 +75,7 @@ poolcli pool list --wallet-name my_wallet
 ### 6. Initiate Refund
 
 ```bash
-poolcli pool redund --wallet-name my_wallet
+poolcli refund create --wallet-name my_wallet
 ```
 
 ## Command Reference
@@ -238,12 +238,12 @@ poolcli pool show <pool-id> --wallet-name my_wallet
 
 Initiate Refund Process
 
-#### `poolcli refund start`
+#### `poolcli refund create`
 
 Start the refund process by selecting the expired developer key.
 
 ```bash
-poolcli refund start
+poolcli refund create
 ```
 #### `poolcli refund list`
 
