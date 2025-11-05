@@ -1,7 +1,5 @@
 """Refund management CLI commands."""
 
-import time
-
 import click
 
 from poolcli.core.auth import AuthService
@@ -22,7 +20,7 @@ def refund() -> None:
 @refund.command()
 @click.option("--wallet-name", required=True, prompt="Wallet name", help="Wallet name")
 @click.option("--backend-url", default=settings.API_URL)
-def start(wallet_name: str, backend_url: str) -> None:
+def create(wallet_name: str, backend_url: str) -> None:
     """Create refund invoice for a developer key."""
     Console.header("💸 Creating refund invoice for developer key")
 
@@ -34,24 +32,8 @@ def start(wallet_name: str, backend_url: str) -> None:
             Console.error("Authentication required.")
             return
 
-        refund_manager = RefundManager(backend_url)
-        refund_response = refund_manager.create_refund_invoice(token)
-        refund_invoice = refund_response.get("invoice", {})
-        amount = refund_invoice.get("amountDue", 5)
-
-        if refund_response:
-            Console.success("✅ Refund invoice created successfully!")
-            Console.print_table(
-                "Refund Invoice Details",
-                [
-                    f"ID: {refund_response.get('refundId', 'N/A')}",
-                    f"Amount: {amount} TAO",
-                    f"Status: {refund_response.get('status', 'unknown').upper()}",
-                ],
-            )
-        else:
-            Console.warning("No refund invoice returned. See if your developer key is expired or not.")
-
+        refund_manager = RefundManager(backend_url=backend_url)
+        refund_manager.create_refund_invoice(token)
     except (AuthenticationError, APIError, RefundError) as e:
         Console.error(str(e))
     except Exception as e:
@@ -101,19 +83,7 @@ def get(refund_id: str, wallet_name: str, backend_url: str) -> None:
             return
 
         refund_manager = RefundManager(backend_url)
-        refund_details = refund_manager.get_refund_details(token, refund_id)
-        invoice = refund_details.get("invoice", {})
-
-        Console.print_table(
-            f"Refund {refund_id}",
-            [
-                f"{'Status:':<20} {refund_details.get('status', 'unknown').upper()}",
-                f"{'Amount:':<20} {invoice.get('amountDue', 0)} TAO",
-                f"{'Created:':<20} {invoice.get('createdAt', 'N/A')}",
-                f"{'Updated:':<20} {invoice.get('updatedAt', 'N/A')}",
-            ],
-        )
-
+        refund_manager.get_refund_details(token, refund_id)
     except (AuthenticationError, RefundError, APIError) as e:
         Console.error(str(e))
     except Exception as e:
