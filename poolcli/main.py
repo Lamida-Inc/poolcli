@@ -6,6 +6,7 @@ import click
 from poolcli.cli.auth import auth
 from poolcli.cli.key import key
 from poolcli.cli.pool import pool
+from poolcli.cli.refund import refund
 from poolcli.cli.support import support
 from poolcli.cli.wallet import wallet
 from poolcli.utils.help import RecursiveHelpGroup
@@ -41,6 +42,7 @@ cli.add_command(auth)
 cli.add_command(wallet)
 cli.add_command(key)
 cli.add_command(pool)
+cli.add_command(refund)
 cli.add_command(support)
 
 if __name__ == "__main__":

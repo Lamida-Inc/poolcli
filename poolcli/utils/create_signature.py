@@ -32,7 +32,7 @@ def create_siws_signature(wallet: Wallet, nonce: str, api_url: str, type: Wallet
         f"{keypair.ss58_address}\n\n"
         f"{statement}\n\n"
         f"URI: {api_url}\n"
-        f"Version: {__version__}\n"
+        "Version: 1.0.0\n"
         f"Nonce: {nonce}\n"
         f"Issued At: {issued_at}"
     )
